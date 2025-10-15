@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Gemini Chat with Flask</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+
+    <h1>ถาม Gemini ได้เลย!</h1>
+    
+    <form id="chatForm"> 
+        <input type="text" id="promptInput" placeholder="พิมพ์คำถามของคุณ...">
+        
+        <button type="submit">ส่งคำถาม</button>
+    </form>
+    
+    <hr>
+    
+    <h2>คำตอบจาก Gemini:</h2>
+    <div id="gemini" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 50px;">
+        <p id="yo">รอการสนทนา...</p>
+    </div>
+
+    <script>
+        // ✅ ใช้ชื่อฟังก์ชันที่สื่อความหมายและรับ Event
+        async function sendPrompt(event) {
+            
+            // 💡 สำคัญ: หยุดการรีโหลดหน้าเว็บเมื่อกดปุ่ม Submit
+            event.preventDefault(); 
+            
+            const promptInput = document.getElementById('promptInput');
+            const responseText = document.getElementById('yo');
+            
+            // ✅ ดึงค่า User Prompt ภายในฟังก์ชัน (เพื่อให้ได้ค่าปัจจุบัน)
+            const userPrompt = promptInput.value; 
+
+            if (!userPrompt) {
+                responseText.innerText = 'กรุณากรอกคำถาม'; // แสดงข้อความเตือนแทน alert
+                return;
+            }
+            
+            responseText.innerText = 'กำลังส่งคำถาม... โปรดรอสักครู่';
+
+            try {
+                // ✅ โค้ด fetch API: POST และส่ง JSON body
+                const response = await fetch('http://127.0.0.1:5001/ask', { 
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ userPrompt: userPrompt }) 
+                }); 
+                
+                // ตรวจสอบสถานะการตอบกลับ
+                if (!response.ok) {
+                    const errorData = await response.json(); 
+                    throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // นำคำตอบมาแสดงผล
+                responseText.innerText = data.text; 
+                promptInput.value = ''; 
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                responseText.innerText = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server หรือ API: ' + error.message;
+            }
+        }
+
+         document.getElementById('chatForm').addEventListener('submit', sendPrompt);
+    </script>
+</body>
+</html>
