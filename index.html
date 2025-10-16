@@ -9,8 +9,10 @@
 </head>
 <body>
 
+    <!--ข้อความขึ้นต้น-->
     <h1>ถาม Gemini ได้เลย!</h1>
-    
+
+    <!--Input ทั้งหมด-->
     <form id="chatForm"> 
         <input type="text" id="promptInput" placeholder="พิมพ์คำถามของคุณ...">
         
@@ -18,34 +20,37 @@
     </form>
     
     <hr>
+
     
     <h2>คำตอบจาก Gemini:</h2>
+    <!-- ข้อความที่ใช้ show ข้อมูลจาก AI-->
     <div id="gemini" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 50px;">
         <p id="yo">รอการสนทนา...</p>
     </div>
 
     <script>
-        // ✅ ใช้ชื่อฟังก์ชันที่สื่อความหมายและรับ Event
+        //สร้าง function ที่ใช้ทำ
         async function sendPrompt(event) {
             
-            // 💡 สำคัญ: หยุดการรีโหลดหน้าเว็บเมื่อกดปุ่ม Submit
+            //หยุดการรีโหลดหน้าเว็บเมื่อกดปุ่ม Submit
             event.preventDefault(); 
             
             const promptInput = document.getElementById('promptInput');
             const responseText = document.getElementById('yo');
             
-            // ✅ ดึงค่า User Prompt ภายในฟังก์ชัน (เพื่อให้ได้ค่าปัจจุบัน)
+            //ดึงข้อความใน Input
             const userPrompt = promptInput.value; 
 
+            //ถ้าไม่มีข้อความใน Input ให้ส่งข้อความเตือน
             if (!userPrompt) {
-                responseText.innerText = 'กรุณากรอกคำถาม'; // แสดงข้อความเตือนแทน alert
+                responseText.innerText = 'กรุณากรอกคำถาม';
                 return;
             }
             
             responseText.innerText = 'กำลังส่งคำถาม... โปรดรอสักครู่';
 
             try {
-                // ✅ โค้ด fetch API: POST และส่ง JSON body
+                //บอกตำแหน่งรับข้อมูล และ ส่งข้อมูล
                 const response = await fetch('http://127.0.0.1:5001/ask', { 
                     method: 'POST', 
                     headers: {
@@ -66,6 +71,7 @@
                 responseText.innerText = data.text; 
                 promptInput.value = ''; 
 
+            //check error by fetch or server
             } catch (error) {
                 console.error('Fetch error:', error);
                 responseText.innerText = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Server หรือ API: ' + error.message;
@@ -75,4 +81,5 @@
          document.getElementById('chatForm').addEventListener('submit', sendPrompt);
     </script>
 </body>
+
 </html>
